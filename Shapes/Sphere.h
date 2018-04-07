@@ -23,13 +23,21 @@ private:
 	vec3 center;
 
 public:
-	Sphere(int x, int y, int z, float r, Color inputcolor);
-	Color getColor();
+	Sphere(int x, int y, int z, float r, vec3 inputcolor);
+	vec3 getColor();
 	vec3 getpoint();
 	float getradius();
 	float Intersection(Ray *);
 
     Ray getReflectionRay(Ray *incomingRay) override;
+
+	vec3 getNormal(Ray *incomingRay) override;
+
+	vec3 middle() override;
+
+	vec3 minBoundary() override;
+
+	vec3 maxBoundary() override;
 };
 
 #endif //RAYTRACERCOPY_SPHERE_H

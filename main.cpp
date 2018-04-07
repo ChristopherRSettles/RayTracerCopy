@@ -4,6 +4,7 @@
 #include <fstream>
 #include "Control/Ray.h"
 #include "Shapes/Sphere.h"
+#include "Shapes/Box.h"
 
 using namespace std;
 const double PI = 3.1415926;
@@ -12,10 +13,10 @@ const Color backgroundcolor = Color(0, 204, 204);
 void drawImage(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOfShapes,
                unsigned raysPerPixel, bool perspective);
 
-void outputPictureToFile(vector<vector<Color>> pixels);
+void outputPictureToFile(vector<vector<vec3>> pixels);
 
 
-Color computeAverageColor(vector<Color> colors);
+vec3 computeAverageColor(vector<vec3> colors);
 
 int main() {
 
@@ -34,14 +35,16 @@ int main() {
     //	listofshapes.push_back(new Sphere(-20  - 10*i, 20 *cos(i),  20 * sin(i), 3, Color(0, 0, 255)));//Blue Sphere
     //}
 
-    listofshapes.push_back(new Sphere(-20, 10, 0, 4, Color(0, 0, 255)));//Blue Sphere
-    listofshapes.push_back(new Sphere(-20, 10, 20, 3, Color(0, 255, 0)));//Green Sphere
-    listofshapes.push_back(new Sphere(-20, 0, 2, 5, Color(0, 255, 0)));//Green Sphere
-    listofshapes.push_back(new Sphere(-20, -10, 2, 3, Color(255, 0, 0)));//Red Sphere
+//    listofshapes.push_back(new Sphere(-20, 10, 0, 4, vec3(0, 0, 255)));//Blue Sphere
+//    listofshapes.push_back(new Sphere(-20, 10, 20, 3, vec3(0, 255, 0)));//Green Sphere
+//    listofshapes.push_back(new Sphere(-20, 0, 2, 5, vec3(0, 255, 0)));//Green Sphere
+//    listofshapes.push_back(new Sphere(-20, -10, 2, 3, vec3(255, 0, 0)));//Red Sphere
+
+
 
 //    listofshapes.push_back(new Plane(Point(-40, 0, 10), Direction(-10, 0, 0), Direction(0, 100, 0), Color(255, 120, 0)));
-//    listofshapes.push_back(new Box(Point(-50, -50, 30), Direction(-10, 0, 0), Direction(0, 10, 0), Direction(0,0,10), Color(255, 20, 60)));
-//    listofshapes.push_back(new Box(Point(-50, -10, -20), Direction(-10, 0, 0), Direction(0, 10, 0), Direction(0, 0, 10), Color(255, 20, 60)));
+    listofshapes.push_back(new Box(vec3(-50,  -10, 30), vec3(-10, 0, 0), vec3(0, 10, 0), vec3(0,0,10), vec3(255, 60, 20)));
+    listofshapes.push_back(new Box(vec3(-50, -10, -30), vec3(-10, 0, 0), vec3(0, 10, 0), vec3(0, 0, 10), vec3(255, 20, 60)));
 
 //    listofshapes.push_back(new Capsule(Point(-2, 0, 15), Point(-225, 0, 15), 3, Color(255, 0, 120)));//Pink Capsule Top
 //    listofshapes.push_back(new Capsule(Point(-2,-15, 0), Point(-225,-15, 0), 3, Color(255, 0, 120)));//Pink Capsule Left
@@ -50,12 +53,12 @@ int main() {
 
 //    listofshapes.push_back(new Capsule(Point(-2, 0, 0),  Point(-225, 0, 0), 3, Color(255, 0, 120))); //Pink Capsule Center
 //    listofshapes.push_back(new Capsule(Point(-2, -5, 2), Point(-2, 0, 2), 3,  Color(255, 0, 120)));//Pink Capsule
-    unsigned numRays = 20;
-    drawImage(userstartdirection, userstartpoint, listofshapes, numRays, false);
+    unsigned numRays = 3;
+    drawImage(userstartdirection, userstartpoint, listofshapes, numRays, true);
     return 0;
 }
 
-void outputPictureToFile(vector<vector<Color>> pixels) {
+void outputPictureToFile(vector<vector<vec3>> pixels) {
     ofstream myFile;
     myFile.open("outputimage.ppm");
     unsigned long width = pixels.size();           //This could be backwards.
@@ -64,7 +67,7 @@ void outputPictureToFile(vector<vector<Color>> pixels) {
 
     for (int i = 0; i < pixels.size(); i++) {
         for (int j = 0; j < pixels[i].size(); j++) {
-            myFile << pixels[i][j].getr() << " " << pixels[i][j].getg() << " " << pixels[i][j].getb() << "\n";
+            myFile << int(pixels[i][j].r()) << " " << int(pixels[i][j].g()) << " " << int(pixels[i][j].b()) << "\n";
 
         }
     }
@@ -75,7 +78,7 @@ void outputPictureToFile(vector<vector<Color>> pixels) {
 void drawImage(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOfShapes,
                unsigned raysPerPixel, bool perspective) {
     int width = 500, height = 500;
-    vector<vector<Color>> imagePixels(width, vector<Color>(height));
+    vector<vector<vec3>> imagePixels(width, vector<vec3>(height));
 
     for (int j = 0; j < height; j++) {
         for (int k = 0; k < width; k++) {
@@ -101,9 +104,9 @@ void drawImage(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> lis
                     rays.emplace_back(userstartdirection, vec3(userstartpoint.x(), pointy, pointz));
                 }
             }
-            vector<Color> closestColors;
+            vector<vec3> closestColors;
             for(auto &pixelRay : rays) {
-                Color closestColor = Color(255, 255, 255);
+                vec3 closestColor = vec3(255, 255, 255);
                 float lowest_t = INT64_MAX;
                 for (auto &shape : listOfShapes) {
                     //Shoot many rays through the box and at random places in each box.
@@ -122,11 +125,11 @@ void drawImage(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> lis
     outputPictureToFile(imagePixels);
 }
 
-Color computeAverageColor(vector<Color> colors){
+vec3 computeAverageColor(vector<vec3> colors){
     vec3 avg = vec3(0,0,0);
     for (auto &color: colors){
-        avg += vec3(color.getr(), color.getg(), color.getb());
+        avg += vec3(color.r(), color.g(), color.b());
     }
     avg /= colors.size();
-    return Color(avg.x(), avg.y(), avg.z());
+    return vec3(avg.x(), avg.y(), avg.z());
 }
