@@ -7,6 +7,6 @@ int main()
 {
     cout << "Testing the object file parser" << endl;
     Parser parser("cow.obj");
-    parser.parse();
+    parser.parseTrianglesFromObj();
     return 0;
 }

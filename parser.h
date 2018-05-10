@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include "Shapes/triangle.h"
+#include "Shapes/Triangle.h"
 
 using namespace std;
 
@@ -13,7 +13,7 @@ class Parser
 
   public:
     Parser(string filename);
-    vector<triangle> parse();
+    vector<triangle> parseTrianglesFromObj();
     vector<string> split(string input, char delimiter);
 };
 #endif

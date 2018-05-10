@@ -7,7 +7,7 @@
 //
 //using namespace std;
 //const double PI = 3.1415926;
-//const Color backgroundcolor = Color(0, 204, 204);
+//const Color BACKGROUND_COLOR = Color(0, 204, 204);
 //Shape* bluecircle;
 //
 //void render(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOfShapes,

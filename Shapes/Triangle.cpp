@@ -1,62 +1,156 @@
 //
-// Created by chris on 3/14/18.
+// Created by chris on 5/9/18.
 //
 
 #include "Triangle.h"
 
-Triangle::Triangle(const vec3 &_p, const vec3 &d1, const vec3 &d2, const vec3 &inputcolor) : Plane(_p, d1, d2,
-                                                                                                   inputcolor) {}
+vec3 triangle::getColor() {
+    return color;
+}
 
-float Triangle::Intersection(Ray *ray) {
-    double t, u, v;
-    double position_difference_x = (p.x() - ray->getpoint().x());
-    double position_difference_y = (p.y() - ray->getpoint().y());
-    double position_difference_z = (p.z() - ray->getpoint().z());
-    vec3 dt = ray->getdir();
-//    cout << "t: "<<dt <<", u: " <<du <<", v: " << dv <<endl;
-    double MatrixADeterminant =
-            (
-                    dt.x()*(du.y()*dv.z() - dv.y()*du.z()) +
-                    dt.y()*(du.x()*dv.z() - dv.x()*du.z()) +
-                    dt.z()*(du.x()*dv.y() - dv.x()*du.y())
-            );
-    if (MatrixADeterminant == 0) {
-//        std::cout <<"Ray did not hit! MatrixADeterminant value: " <<MatrixADeterminant <<std::endl;
-        return -1;
+// Used from the article for https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
+// Borrowed other ideas from this person who rendered planes :
+// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
+float triangle::Intersection(Ray *ray) {
+    // Prepare our barycentric variables
+
+    //Need to compute P, the point at which the ray intersection the triangle plane.
+
+    vec3 u = point_B - point_A;
+    vec3 v = point_C - point_A;
+
+    vec3 n = cross(u,v);
+
+    float intersect_t = dot((point_A - ray->p), n) / dot(ray->dir, n);
+    vec3 P = ray->p + ray->dir*intersect_t;
+
+    vec3 w = P - point_A;
+
+    vec3 vCrossW = cross(v, w);
+    vec3 vCrossU = cross(v, u);
+
+
+    // Test sign of r
+
+    if (dot(vCrossW, vCrossU) < 0)
+        return false;
+
+    vec3 uCrossW = cross(u, w);
+    vec3 uCrossV = cross(u, v);
+
+    // Test sign of t
+
+    if (dot(uCrossW, uCrossV) < 0)
+
+        return false;
+
+
+    // At this point, we know that r and t and both > 0.
+
+    // Therefore, as long as their sum is <= 1, each must be less <= 1
+
+    float denom = uCrossV.length();
+
+    float r = vCrossW.length() / denom;
+
+    float t = uCrossW.length() / denom;
+
+
+    if(r + t <= 1){
+        return t;
+    }
+    return 0.0;
+}
+
+Ray triangle::getReflectionRay(Ray *incomingRay) {
+    //get the t value that the ray intersects the sphere at.
+    float t = this->Intersection(incomingRay);
+
+    //get the point on the sphere that this intersection is done.
+    vec3 intersectionPoint = incomingRay->getpoint() + incomingRay->getdir() * t;
+
+    vec3 planeNormalVector = getNormal(incomingRay);
+
+    //We will create the offset
+    vec3 offsetB = planeNormalVector * incomingRay->getdir().length();
+    vec3 reflectionDir = incomingRay->getdir() + 2 * offsetB;
+
+    Ray reflectionRay(reflectionDir, intersectionPoint);
+    return reflectionRay;
+}
+
+vec3 triangle::getNormal(Ray *incomingRay) {
+    vec3 u = point_B - point_A;
+    vec3 v = point_C - point_A;
+
+    vec3 normal1 = cross(u, v);
+    vec3 normal2 = -normal1;
+    float dot1 = dot(incomingRay->getdir(), normal1);
+    float dot2 = dot(incomingRay->getdir(), normal2);
+    vec3 planeNormalVector;
+
+    if(dot1 >= 0 && dot2 <= 0){
+        planeNormalVector = normal1;
+    }
+    else if (dot1 <= 0 && dot2 >= 0){
+        planeNormalVector = normal2;
+    }
+    else{
+        planeNormalVector = vec3(0,0,0);
+        std::cout<<"The two dot products of the ray with the plane have the same sign: dot1: " <<dot <<" dot2: " <<dot2 <<std::endl;
     }
 
-    t = (
-                (position_difference_x)*(du.y()*dv.z() - dv.y()*du.z()) +
-                (position_difference_y)*(du.x()*dv.z() - dv.x()*du.z()) +
-                (position_difference_z)*(du.x()*dv.y() - dv.x()*du.y())
-        )
-        / MatrixADeterminant;
+    //Needs to be a unit vector
+    planeNormalVector.make_unit_vector();
+    return planeNormalVector;
+}
 
-    u = (
-                dt.x()*((position_difference_y)*(-dv.z()) + (dv.y())*(position_difference_z)) +
-                dt.y()*((position_difference_x)*(-dv.z()) + (dv.x())*(position_difference_z)) +
-                dt.z()*((position_difference_x)*(-dv.y()) + (dv.x())*(position_difference_y))
-        )
-        / MatrixADeterminant;
+vec3 triangle::middle() {
+    vec3 median = (point_A + point_B + point_C) / 3;
+    return median;
+}
 
-    v = (
-                dt.x()*((-du.y())* (position_difference_z) + (du.z())*(position_difference_y)) +
-                dt.y()*((-du.x())* (position_difference_z) + (du.z())*(position_difference_x)) +
-                dt.z()*((-du.x())* (position_difference_y) + (du.y())*(position_difference_x))
-        )
-        / MatrixADeterminant;
+vec3 triangle::minBoundary() {
+//    float minx = (float) std::min(std::min(2.0 , 2.2 ), 2.0);
+    float minx = std::min(point_C.x(), float(std::min(point_A.x(), point_B.x())));
+    float miny = std::min(point_C.y(), float(std::min(point_A.y(), point_B.y())));
+    float minz = std::min(point_C.z(), float(std::min(point_A.z(), point_B.z())));
 
-    if ((u >= 0 && u <= 1) && (v >= 0 && v <= 1))
-    {
-        float y = u;
-        float x = v;
-        if (abs(y/x < 1)) {
-            return (float) t;
-        }
-    }
-//    cout <<"Ray did not hit! t value: " <<t <<endl;
+    return vec3(minx, miny, minz);
+}
 
+vec3 triangle::maxBoundary() {
+    float maxx = std::max(point_C.x(), float(std::max(point_A.x(), point_B.x())));
+    float maxy = std::max(point_C.y(), float(std::max(point_A.y(), point_B.y())));
+    float maxz = std::max(point_C.z(), float(std::max(point_A.z(), point_B.z())));
 
+    return vec3(maxx, maxy, maxz);
+}
 
-    return -1;
+triangle::triangle(vec3 a, vec3 b, vec3 c, vec3 color_): point_A(a), point_B(b), point_C(c) {
+    color = color_;
+}
+
+const vec3 &triangle::getPoint_A() const {
+    return point_A;
+}
+
+const vec3 &triangle::getPoint_B() const {
+    return point_B;
+}
+
+const vec3 &triangle::getPoint_C() const {
+    return point_C;
+}
+
+void triangle::setPoint_A(const vec3 &point_A) {
+    triangle::point_A = point_A;
+}
+
+void triangle::setPoint_B(const vec3 &point_B) {
+    triangle::point_B = point_B;
+}
+
+void triangle::setPoint_C(const vec3 &point_C) {
+    triangle::point_C = point_C;
 }

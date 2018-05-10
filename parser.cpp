@@ -1,11 +1,8 @@
+//Parser written by Pradyumna Shome. All credit to him.
 #include <iostream>
 #include <sstream>
-#include <string>
 #include "parser.h"
-#include "Shapes/triangle.h"
-//#include "material.h"
 
-using namespace std;
 using std::stof;
 using std::stoi;
 
@@ -34,7 +31,7 @@ vector<string> Parser::split(string input, char delimiter)
     return tokens;
 }
 
-vector<triangle> Parser::parse()
+vector<triangle> Parser::parseTrianglesFromObj()
 {
     char VERTEX_DESCRIPTOR = 'v';
     char FACE_DESCRIPTOR = 'f';
@@ -48,10 +45,7 @@ vector<triangle> Parser::parse()
         if (lineDescriptor == VERTEX_DESCRIPTOR)
         {
             vector<string> lineTokens = split(line, ' ');
-            for (string e : lineTokens)
-            {
-//                cout << "\tToken: " << e << endl;
-            }
+
             // Each line consists of v followed by three numbers, the three numbers go into the vertex constructor
             vec3 vertex(stof(string(lineTokens[1]).c_str()), stof(string(lineTokens[2]).c_str()), stof(string(lineTokens[3]).c_str()));
             vertices.push_back(vertex);
@@ -63,7 +57,7 @@ vector<triangle> Parser::parse()
             int firstVertexIndex = stoi(string(lineTokens[1]).c_str()) - 1;
             int secondVertexIndex = stoi(string(lineTokens[2]).c_str()) - 1;
             int thirdVertexIndex = stoi(string(lineTokens[3]).c_str()) - 1;
-            triangle tri(vertices[firstVertexIndex], vertices[secondVertexIndex], vertices[thirdVertexIndex], vec3(255,255,69));
+            triangle tri(vertices[firstVertexIndex], vertices[secondVertexIndex], vertices[thirdVertexIndex], vec3(244,92,66));
             triangles.push_back(tri);
         }
         else if (lineDescriptor == COMMENT_DESCRIPTOR)

@@ -18,15 +18,26 @@ class Capsule: public Shape
 {
 
 private:
+
     vec3 startpoint, endpoint;
     int r;
 
 public:
+    Capsule(vec3 inputstartpoint, vec3 inputendpoint, int inputr, vec3 inputcolor);
 
-    Capsule(vec3 startpoint, vec3 endpoint, int inputr, Color inputcolor);
+    Ray getReflectionRay(Ray *incomingRay) override;
 
-    Color getColor();
-    vec3 Intersection(Ray *);
+    vec3 getNormal(Ray *incomingRay) override;
+
+    vec3 middle() override;
+
+    vec3 minBoundary() override;
+
+    vec3 maxBoundary() override;
+
+
+    vec3 getColor();
+    float Intersection(Ray *);
     vec3 getdir();
     vec3 getpoint();
     int getradius();

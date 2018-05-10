@@ -8,17 +8,18 @@
 #include "Control/Lighting/Light.h"
 #include "Control/Lighting/DirectionalLight.h"
 #include "Control/BoundingVolume.h"
-#include "Shapes/triangle.h"
+#include "Shapes/Triangle.h"
 #include "parser.h"
+#include "Shapes/Capsule.h"
 
 using namespace std;
 const float PI = 3.1415926;
-const vec3 backgroundcolor = vec3(0, 204, 204);
+const vec3 BACKGROUND_COLOR = vec3(0, 204, 204);
 
-void render(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOfShapes, vector<Light *> listofLights,
+void render(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOfShapes, vector<Light *> listOfLights,
             unsigned raysPerPixel, bool perspective);
 
-void outputPictureToFile(vector<vector<vec3>> pixels, string);
+void outputPictureToFile(vector<vector<vec3>> pixels, const string &);
 
 vec3 computeAverageColor(vector<vec3> colors);
 
@@ -34,17 +35,18 @@ int main() {
     createShapesAndRender();
 
     t2=clock();
-    float diff ((float)t2-(float)t1);
+    float diff = ((float)t2-(float)t1);
     cout<<diff<<endl;
     return 0;
 }
 
 void createShapesAndRender() {//The user will tell the draw function that there are a list of spheres and capsules (shapes), and
-    //How he wants to look at those shapes (Point and direction);
     vec3 userstartpoint = vec3(2, 0, 0);
+
     //The direction really states the distance to the screen as the x component
+    //Can only ever look in the negative x or positive x direction because the rays are constructed to always shoot out from that direction.
+
     vec3 userstartdirection = vec3(-360, 0, 0); //Can only have an x component
-    //Can only look in the -x direction because we want to look left when y becomes more negative (look in negative x dir)
     vector<Shape *> listofshapes;
     vector<Light *> listoflights;
 
@@ -56,17 +58,18 @@ void createShapesAndRender() {//The user will tell the draw function that there 
 //    listofshapes.push_back(new Triangle(vec3(20,0,0), vec3(10,0,0), vec3(0,15,0), vec3(0,255,128)));
 //    listofshapes.push_back(new Plane(Point(-40, 0, 10), Direction(-10, 0, 0), Direction(0, 100, 0), RGB(255, 120, 0)));
 
+//    Testing triangle intersections!
 //    listofshapes.push_back(new triangle(vec3(-100,0,0), vec3(0,-10,0), vec3(0,10,10), vec3(0,128,255)));
 //    listofshapes.push_back(new triangle(vec3(0,0,0), vec3(0,-10,0), vec3(0,0,10), vec3(0,128,255)));
     Parser parser("dragon.obj");
 
-    vector <triangle> some_triangles = parser.parse();
+    vector <triangle> some_triangles = parser.parseTrianglesFromObj();
     for(triangle& tri: some_triangles){
         cout <<tri.getPoint_A() <<' ' <<tri.getPoint_B() <<' ' << tri.getPoint_C() <<endl;
 
-        tri.setPoint_A(vec3(tri.getPoint_A().x(), tri.getPoint_A().y(), tri.getPoint_A().z()));
-        tri.setPoint_B(vec3(tri.getPoint_B().x(), tri.getPoint_B().y(), tri.getPoint_B().z()));
-        tri.setPoint_C(vec3(tri.getPoint_C().x(), tri.getPoint_C().y(), tri.getPoint_C().z()));
+        tri.setPoint_A(vec3(tri.getPoint_A().x(), -tri.getPoint_A().y(), tri.getPoint_A().z()));
+        tri.setPoint_B(vec3(tri.getPoint_B().x(), -tri.getPoint_B().y(), tri.getPoint_B().z()));
+        tri.setPoint_C(vec3(tri.getPoint_C().x(), -tri.getPoint_C().y(), tri.getPoint_C().z()));
         listofshapes.push_back(&tri);
     }
 //    listofshapes.push_back(new Sphere(vec3(0, 0, 0), 10, vec3(255, 0, 0)));
@@ -103,18 +106,18 @@ void createShapesAndRender() {//The user will tell the draw function that there 
 
 //    listofshapes.push_back(new Plane(vec3(-30, -10, 15), vec3(0, -5, 0), vec3(0, 0, 7), vec3(255, 120, 0)));
 //    listofshapes.push_back(new Triangle(vec3(-20, 10, 0), vec3(0, 10, 0), vec3(0, 0, 10), vec3(0, 69, 96)));
-    listoflights.push_back(new DirectionalLight(userstartdirection));
+    listoflights.push_back(new DirectionalLight(userstartdirection + vec3(0,-360,0)));
 //    listofshapes.push_back(new Box(Point(-50, -50, 30), Direction(-10, 0, 0), Direction(0, 10, 0), Direction(0,0,10), Color(255, 20, 60)));
 //    listofshapes.push_back(new Box(Point(-50, -10, -20), Direction(-10, 0, 0), Direction(0, 10, 0), Direction(0, 0, 10), Color(255, 20, 60)));
 
-//    listofshapes.push_back(new Capsule(Point(-2, 0, 15), Point(-225, 0, 15), 3, Color(255, 0, 120)));//Pink Capsule Top
-//    listofshapes.push_back(new Capsule(Point(-2,-15, 0), Point(-225,-15, 0), 3, Color(255, 0, 120)));//Pink Capsule Left
-//    listofshapes.push_back(new Capsule(Point(-2, 15, 0), Point(-225, 15, 0), 3, Color(255, 0, 120)));//Pink Capsule Right
-//    listofshapes.push_back(new Capsule(Point(-2, 0,-15), Point(-225, 0,-15), 3, Color(255, 0, 120)));//Pink Capsule Bottom
+//    listofshapes.push_back(new Capsule(vec3(-20, 0, 15), vec3(-200025, 0, 15), 3, vec3(255, 0, 120)));//Pink Capsule Top
+//    listofshapes.push_back(new Capsule(vec3(-20,-15, 0), vec3(-200025,-15, 0), 3, vec3(255, 0, 120)));//Pink Capsule Left
+//    listofshapes.push_back(new Capsule(vec3(-20, 15, 0), vec3(-200025, 15, 0), 3, vec3(255, 0, 120)));//Pink Capsule Right
+//    listofshapes.push_back(new Capsule(vec3(-20, 0,-15), vec3(-200025, 0,-15), 3, vec3(255, 0, 120)));//Pink Capsule Bottom
 
 //    listofshapes.push_back(new Capsule(Point(-2, 0, 0),  Point(-225, 0, 0), 3, Color(255, 0, 120))); //Pink Capsule Center
 //    listofshapes.push_back(new Capsule(Point(-2, -5, 2), Point(-2, 0, 2), 3,  Color(255, 0, 120)));//Pink Capsule
-    unsigned numRays = 20;
+    unsigned numRays = 1;
     render(userstartdirection, userstartpoint, listofshapes, listoflights, numRays, true);
 }
 
@@ -122,7 +125,7 @@ void render(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOf
             unsigned raysPerPixel, bool perspective) {
 
     int width = 500, height = 500;
-    vector<vector<vec3>> imagePixels(width, vector<vec3>(height));
+    vector<vector<vec3>> imagePixels(static_cast<unsigned long>(width), vector<vec3>(static_cast<unsigned long>(height)));
     BoundingVolume bvh = BoundingVolume(listOfShapes);
     cout <<"Finished constructing BVH!" <<endl;
 
@@ -133,7 +136,7 @@ void render(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOf
 
             vector<vec3> closestColors;
             for (auto &pixelRay : rays) {
-                vec3 closestColor = backgroundcolor;
+                vec3 closestColor = BACKGROUND_COLOR;
 
                 Shape *closestShape = bvh.closestIntersectionShape(pixelRay);
 //                for(auto closestShape: listOfShapes) {
@@ -158,7 +161,7 @@ void render(vec3 userstartdirection, vec3 userstartpoint, vector<Shape *> listOf
         }
     }
 
-    string filename_type = perspective ? "perspective.pmm" : "orthographic.ppm";
+    string filename_type = perspective ? "perspective.ppm" : "orthographic.ppm";
     outputPictureToFile(imagePixels, filename_type);
 }
 
@@ -186,7 +189,7 @@ void getRays(const vec3 &userstartdirection, const vec3 &userstartpoint, unsigne
     }
 }
 
-void outputPictureToFile(vector<vector<vec3>> pixels, string filename) {
+void outputPictureToFile(vector<vector<vec3>> pixels, const string &filename) {
     ofstream myFile;
     myFile.open(filename);
     unsigned long width = pixels.size();           //This could be backwards.
