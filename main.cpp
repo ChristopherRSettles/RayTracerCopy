@@ -114,7 +114,7 @@ void createShapesAndRender() {//The user will tell the draw function that there 
 
 //    listofshapes.push_back(new Capsule(Point(-2, 0, 0),  Point(-225, 0, 0), 3, Color(255, 0, 120))); //Pink Capsule Center
 //    listofshapes.push_back(new Capsule(Point(-2, -5, 2), Point(-2, 0, 2), 3,  Color(255, 0, 120)));//Pink Capsule
-    unsigned numRays = 1;
+    unsigned numRays = 20;
     render(userstartdirection, userstartpoint, listofshapes, listoflights, numRays, true);
 }
 
