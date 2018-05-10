@@ -28,7 +28,7 @@ float Plane::Intersection(Ray *myRay)
                     dt.z()*(du.x()*dv.y() - dv.x()*du.y())
             );
     if (MatrixADeterminant == 0) {
-//        std::cout <<"Ray did not hit! MatrixADeterminant value: " <<MatrixADeterminant <<std::endl;
+//        std::cerr <<"Ray did not hit! MatrixADeterminant value: " <<MatrixADeterminant <<std::endl;
 
         return false;
     }
@@ -56,10 +56,18 @@ float Plane::Intersection(Ray *myRay)
 
     if ((u >= 0 && u <= 1) && (v >= 0 && v <= 1))
     {
-//        cout <<"Ray hit!" <<endl;
+//        std::cout <<"Ray hit! t-value = " <<t <<std::endl;
+//        std::cout <<"Ray's points: " <<myRay->getpoint().x() <<" "  <<myRay->getpoint().y() <<" "  <<myRay->getpoint().z() <<std::endl;
+//        std::cout <<"Ray's dirs: " <<myRay->getdir().x() <<" " <<myRay->getdir().y() <<" "  <<myRay->getdir().z() <<std::endl;
+//        std::cout <<"du: " <<du <<" , dv: " <<dv <<" , p: " <<p <<std::endl;
+//        std::cout <<"position differences: " <<position_difference_x << " " <<position_difference_y << " " <<position_difference_z <<std::endl;
+//        std::cout << (position_difference_x)*(du.y()*dv.z() - dv.y()*du.z()) <<std::endl;
+//        std::cout << (position_difference_y)*(du.x()*dv.z() - dv.x()*du.z()) <<std::endl;
+//        std::cout << (position_difference_z)*(du.x()*dv.y() - dv.x()*du.y()) <<std::endl;
+//        std::cout <<MatrixADeterminant <<std::endl;
         return (float)t;
     }
-//    cout <<"Ray did not hit! t value: " <<t <<endl;
+//    std::cout <<"Ray did not hit! t value: " <<t <<" u value: " << u << " v value: " <<v <<std::endl;
 
 
 

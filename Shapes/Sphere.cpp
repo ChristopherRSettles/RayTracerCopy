@@ -3,9 +3,9 @@
 #include "Sphere.h"
 
 
-Sphere::Sphere(int inputx, int inputy, int inputz, float inputr, vec3 inputcolor) //: Shape()
+Sphere::Sphere(vec3 p, float inputr, vec3 inputcolor) //: Shape()
 {
-    center = vec3(inputx, inputy, inputz);
+    center = p;
     radius = inputr;
     color = inputcolor;
 }

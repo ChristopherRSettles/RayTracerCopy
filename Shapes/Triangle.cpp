@@ -21,9 +21,8 @@ float Triangle::Intersection(Ray *ray) {
                     dt.z()*(du.x()*dv.y() - dv.x()*du.y())
             );
     if (MatrixADeterminant == 0) {
-        std::cout <<"Ray did not hit! MatrixADeterminant value: " <<MatrixADeterminant <<std::endl;
-
-        return false;
+//        std::cout <<"Ray did not hit! MatrixADeterminant value: " <<MatrixADeterminant <<std::endl;
+        return -1;
     }
 
     t = (

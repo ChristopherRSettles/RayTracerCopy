@@ -14,7 +14,7 @@ class Shape;
 class Ray
 {
 
-private:
+public:
     vec3 dir;
     vec3 p;
 

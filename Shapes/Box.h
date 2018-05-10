@@ -15,13 +15,18 @@ class Box : public Shape
 {
 
 private:
-    vec3 p;
-    vec3 du, dv, dw;
-    Plane planes[6];
+
+    vec3 minp, maxp;
+//    vec3 du, dv, dw;
+//    Plane planes[6];
 
 public:
+//    Box();
     Box(vec3 p1, vec3 p2);
-    Box(vec3 _p, vec3 d1, vec3 d2, vec3 d3, vec3 inputcolor);
+
+    Box(vec3 p1, vec3 p2, vec3 color);
+
+//    Box(vec3 _p, vec3 d1, vec3 d2, vec3 d3, vec3 inputcolor);
     vec3 getColor() override;
     float Intersection(Ray *) override;
 
@@ -35,5 +40,7 @@ public:
 
     vec3 maxBoundary() override;
 
+
+    bool intersect(Ray &r);
 };
 #endif //RAYTRACERCOPY_BOX_H

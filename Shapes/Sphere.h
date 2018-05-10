@@ -23,7 +23,7 @@ private:
 	vec3 center;
 
 public:
-	Sphere(int x, int y, int z, float r, vec3 inputcolor);
+	Sphere(vec3 p, float r, vec3 inputcolor);
 	vec3 getColor();
 	vec3 getpoint();
 	float getradius();

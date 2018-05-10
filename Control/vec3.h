@@ -35,6 +35,7 @@ public:
     inline vec3& operator/=(const float t);
     inline bool operator==(const vec3& v);
     inline bool operator!=(const vec3& v);
+    inline bool operator<=(const vec3& v);
 
     inline float length() const { return sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]); }
     inline float squared_length() const { return e[0]*e[0] + e[1]*e[1] + e[2]*e[2]; }
@@ -149,6 +150,10 @@ inline bool vec3::operator==(const vec3& v) {
 }
 inline bool vec3::operator!=(const vec3& v) {
     return (e[0] != v.x() || e[1] != v.y() || e[2] != v.z());
+}
+
+bool vec3::operator<=(const vec3& v) {
+    return (e[0] <= v.x() && e[1] <= v.y() && e[2] <= v.z());
 }
 
 inline vec3 unit_vector(vec3 v) {
